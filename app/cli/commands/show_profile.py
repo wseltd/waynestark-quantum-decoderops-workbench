@@ -1,0 +1,24 @@
+"""`decoderops show-profile` command."""
+
+from __future__ import annotations
+
+import json
+
+import typer
+
+from app.cli.client import DecoderOpsClient, DecoderOpsClientError
+
+__all__ = ["show_profile"]
+
+
+def show_profile(
+    profile_id: str = typer.Argument(..., help="profile_id to inspect"),
+    api_url: str | None = typer.Option(None, "--api-url", envvar="DECODEROPS_API_URL"),
+) -> None:
+    client = DecoderOpsClient(base_url=api_url)
+    try:
+        response = client.request("GET", f"/profiles/{profile_id}")
+    except DecoderOpsClientError as e:
+        typer.echo(f"decoderops show-profile: {e}", err=True)
+        raise typer.Exit(code=1) from e
+    typer.echo(json.dumps(response, indent=2, sort_keys=True))

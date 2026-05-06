@@ -1,0 +1,35 @@
+{
+  "schema_version": "1",
+  "decoder": "pymatching_baseline",
+  "code": "surface",
+  "distance": 3,
+  "rounds": 3,
+  "basis": "Z",
+  "p_error": 0.001,
+  "master_seed": 42,
+  "shots": 10000,
+  "logical_error_rate": {
+    "point_estimate": 0.00123,
+    "ci_low": 0.0008,
+    "ci_high": 0.00178,
+    "ci_method": "bootstrap",
+    "ci_confidence": 0.95
+  },
+  "residual_syndrome_density": 0.05,
+  "latency_ns": {
+    "p50": 8000,
+    "p95": 15000,
+    "p99": 25000,
+    "unit": "per_shot"
+  },
+  "throughput": {
+    "shots_per_sec": 125000.0,
+    "rounds_per_sec": 375000.0
+  },
+  "fingerprint_inputs": {
+    "stim_version": "pinned",
+    "pymatching_version": "pinned"
+  },
+  "ler_rel_tolerance": 0.02,
+  "latency_rel_tolerance": 0.50
+}

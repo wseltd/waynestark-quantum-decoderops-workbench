@@ -1,0 +1,50 @@
+# Docker build context exclusions for the DecoderOps Workbench.
+#
+# IMPORTANT: vendor/ itself is NOT excluded. The NVIDIA Ising-Decoding
+# checkpoints under vendor/Ising-Decoding/models/*.pt are product assets
+# and MUST ship into the build context. Only the .git metadata inside
+# vendor/ is stripped, because the git-lfs tree is large and useless at
+# runtime.
+
+# Python
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtualenvs
+.venv/
+.venv-prebootstrap-*/
+
+# Workbench runtime evidence (regenerated per run)
+.decoderops/
+
+# Git
+.git/
+
+# Vendor (keep vendor/ content, drop only the .git metadata trees)
+vendor/.git/
+vendor/Ising-Decoding/.git/
+
+# Test caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Build artefacts
+build/
+dist/
+*.egg-info/
+
+# Secrets
+.env
+.env.*
+
+# Temp
+*.log
+tests/integration_real_artefacts/tmp/
+tests/runtime_capability/tmp/
+docs/_build/

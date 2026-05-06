@@ -1,0 +1,72 @@
+# Quantum DecoderOps Workbench - Tier 3 GPU runtime dependencies (CUDA 13.x).
+#
+# Target: NVIDIA Blackwell (sm_100 / sm_120 / sm_103) and Hopper/Ada,
+# with NVIDIA driver >= 580.x which exposes CUDA 13.0 compatibility.
+#
+# This file is installed ONLY by scripts/bootstrap_gpu_runtime_env.sh and
+# always AFTER requirements/core.txt has been applied. It intentionally
+# reinstalls torch against the CUDA-13 wheel index to replace the CPU
+# torch that core.txt provisioned.
+#
+# Per research-and-resourced.md §"Blackwell caveat" and
+# nvidia-ising-calibration.md §"Technical requirements", Blackwell
+# targets CUDA 13.x; the CUDA 12.x stack has known issues on Blackwell.
+#
+# Every Tier 3 package is a CUSTOMER-INSTALLED optional runtime. The
+# Workbench product layer must treat each one as import-guarded, detect
+# its presence via scripts/verify_install.sh, and surface precise
+# availability/blocker status in the run manifest, compatibility matrix,
+# and deployment-readiness report.
+
+# Source the CUDA-13 PyTorch wheel index so torch / torchvision / torchaudio
+# resolve against cu130 wheels rather than the default CPU index.
+--extra-index-url https://download.pytorch.org/whl/cu130
+
+# --- PyTorch (CUDA 13.x) --------------------------------------------------
+# Reinstalls the CPU torch placed by core.txt against the cu130 wheels.
+# The bootstrap_gpu_runtime_env.sh script forces --upgrade to take effect.
+torch>=2.4
+
+# --- ONNX Runtime (GPU, CUDA 13) ------------------------------------------
+# As of the research pack, onnxruntime-gpu cu13 is distributed via the
+# ONNX Runtime nightly cu13 channel. If this package name changes
+# upstream, bootstrap_gpu_runtime_env.sh re-checks and logs the precise
+# failure so the operator can swap the index URL without touching this
+# manifest.
+onnxruntime-gpu>=1.17
+
+# --- TensorRT (CUDA 13) ---------------------------------------------------
+# Official NVIDIA pip route documented at
+# https://docs.nvidia.com/deeplearning/tensorrt/latest/installing-tensorrt/install-pip.html
+# Ships bundled libs inside the wheel. Proprietary NVIDIA SDK licence;
+# customer-installed adapter only, never bundled in our redistributed
+# images.
+tensorrt-cu13>=10.0
+
+# --- NVIDIA ModelOpt (ONNX quantisation path for Ising-Decoding export) --
+# Required for ONNX_WORKFLOW=2/3 in the Ising-Decoding vendor repo to
+# perform INT8/FP8 post-training quantisation prior to TensorRT engine
+# build. Python <3.13 constraint comes from upstream packaging.
+nvidia-modelopt[onnx]>=0.15 ; python_version < "3.13"
+
+# --- CuPy (CUDA 13 build) -------------------------------------------------
+# Pinned at 13.6.x to satisfy cuda-quantum-cu13's declared constraint of
+# cupy-cuda13x~=13.6.0. Without this pin, pip's resolver happily floats to
+# cupy 14.x (numerically newer and ABI-compatible in practice today) but
+# violates cudaq's stated requirement, which becomes a hard failure the
+# moment cudaq tightens the constraint upstream. The "13x" suffix is the
+# CUDA major version the wheel is built for (CUDA 13); "13.6.0" is CuPy's
+# own library version - two unrelated axes that happen to both read "13".
+cupy-cuda13x>=13.6.0,<13.7.0
+
+# --- cuQuantum Python (CUDA 13) -------------------------------------------
+# Meta-package; the cu13 suffix keeps us off the cu12 wheel on Blackwell.
+cuquantum-python-cu13>=25.0
+
+# --- CUDA-Q + CUDA-QX QEC -------------------------------------------------
+# cudaq is Apache-2.0 source with optional cuQuantum-backed acceleration.
+# cudaq-qec wheel is marked proprietary because it ships the closed-source
+# libcudaq-qec-nv-qldpc-decoder.so. We therefore TREAT cudaq-qec as a
+# customer-installed adapter and never redistribute it.
+cudaq>=0.10
+cudaq-qec>=0.4

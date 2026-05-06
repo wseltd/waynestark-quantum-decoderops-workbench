@@ -1,0 +1,57 @@
+{% set d = decision -%}
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Decision Report — {{ profile.name|e }}</title>
+</head><body>
+<h1>Decision Report — {{ profile.name|e }}</h1>
+<p><strong>Profile:</strong> <code>{{ profile.profile_id|e }}</code>
+({{ profile.architecture|e }})
+{% if profile.caution_label %}<em>— {{ profile.caution_label|e }}</em>{% endif %}</p>
+<p><strong>Recommendation:</strong>
+{% if d.recommended_backend -%}
+<code>{{ d.recommended_backend|e }}</code> — {{ d.recommendation_label|e }}
+{%- else -%}
+<em>No path survived the profile's export / runtime gates.</em>
+{%- endif %}</p>
+<p>{{ d.recommendation_reason|e }}</p>
+
+{% if d.dominant_tradeoffs %}<h2>Trade-offs</h2><ul>
+{% for t in d.dominant_tradeoffs %}<li>{{ t|e }}</li>{% endfor %}
+</ul>{% endif %}
+
+{% if d.blockers %}<h2>Blockers</h2><ul>
+{% for b in d.blockers %}<li>{{ b|e }}</li>{% endfor %}
+</ul>{% endif %}
+
+<h2>Measurements</h2>
+<table border="1"><tr><th>Decoder</th><th>LER</th><th>CI low</th><th>CI high</th>
+<th>p50 μs/round</th><th>Throughput shots/s</th></tr>
+{% for m in d.measurements %}
+<tr><td><code>{{ m.backend|e }}</code></td>
+<td>{{ "%.3e"|format(m.logical_error_rate) }}</td>
+<td>{{ "%.3e"|format(m.ler_ci_low) }}</td>
+<td>{{ "%.3e"|format(m.ler_ci_high) }}</td>
+<td>{% if m.latency_p50_per_round_us is not none %}{{ "%.3f"|format(m.latency_p50_per_round_us) }}{% else %}—{% endif %}</td>
+<td>{{ "%.1f"|format(m.throughput_shots_per_s) }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<h2>Customer boundary</h2>
+<h3>Can conclude from public proxy</h3><ul>
+{% for line in d.public_proxy_can_conclude %}<li>{{ line|e }}</li>{% endfor %}
+</ul>
+<h3>Requires customer-private inputs</h3><ul>
+{% for line in d.requires_customer_private_inputs %}<li>{{ line|e }}</li>{% endfor %}
+</ul>
+
+<h2>Provenance</h2>
+<ul>
+{% for s in profile.provenance %}
+<li><a href="{{ s.url|e }}">{{ s.label|e }}</a> — cites: <code>{{ s.cites|join(", ")|e }}</code></li>
+{% endfor %}
+</ul>
+
+<hr>
+<footer>generator=decoderops-reports template=decision_report.html.j2 v1</footer>
+</body></html>

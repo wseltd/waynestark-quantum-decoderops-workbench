@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>artefact_manifest — {{ run_id|e }}</title></head>
+<body>
+<h1>artefact_manifest Report</h1>
+<p>run_id: {{ run_id|e }}</p>
+{% if summary is defined %}<p>{{ summary|e }}</p>{% endif %}
+<hr>
+<footer>generator=decoderops-reports template=artefact_manifest.html.j2 v1</footer>
+</body></html>

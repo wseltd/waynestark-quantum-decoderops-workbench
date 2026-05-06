@@ -1,0 +1,5 @@
+"""Database layer — declarative Base + session factory."""
+
+from app.db.base import Base, metadata
+
+__all__ = ["Base", "metadata"]

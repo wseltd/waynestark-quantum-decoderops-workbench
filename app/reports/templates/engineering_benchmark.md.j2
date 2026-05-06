@@ -1,0 +1,56 @@
+# Engineering Benchmark Report — {{ run_id|e }}
+
+## Run Identity
+- run_id: {{ run_id|e }}
+- git_sha: {{ git_sha|e }}
+- config_sha256: {{ config_sha256|e }}
+- pip_freeze_digest: {{ pip_freeze_digest|e }}
+- rng_master_seed: {{ rng_master_seed|e }}
+- started_at_utc: {{ started_at_utc|e }}
+- finished_at_utc: {{ finished_at_utc|e }}
+
+## Reproducibility Fingerprint
+- fingerprint_sha256: {{ reproducibility_fingerprint_sha256|e }}
+
+## Host & Runtime
+- cpu_model: {{ host.cpu_model|e }}
+- cpu_count: {{ host.cpu_count|e }}
+- gpu_model: {{ host.gpu_model|default('')|e }}
+- gpu_count: {{ host.gpu_count|e }}
+- driver_version: {{ host.driver_version|default('')|e }}
+- cuda_runtime_version: {{ host.cuda_runtime_version|default('')|e }}
+- os_kernel: {{ host.os_kernel|e }}
+- python_version: {{ host.python_version|e }}
+
+## Decoder Backends
+{% for d in decoders|sort(attribute='name') -%}
+- {{ d.name|e }} ({{ d.version|e }}): available={{ d.available|e }}{% if not d.available %} — reason={{ d.unavailable_reason|default('')|e }}{% endif %}
+{% endfor %}
+
+## Sweep Axes
+- code_distance: {{ sweep_axes.code_distance|e }}
+- rounds: {{ sweep_axes.rounds|e }}
+- basis: {{ sweep_axes.basis|e }}
+- noise_params: {{ sweep_axes.noise_params|e }}
+- model_variant: {{ sweep_axes.model_variant|e }}
+- export_mode: {{ sweep_axes.export_mode|e }}
+
+- shots_total: {{ shots_total|e }}
+
+## Metrics Table
+| decoder | d | r | basis | LER | CI_low | CI_high | residual | p50_shot_ms | p95_shot_ms | p99_shot_ms | p50_round_ms | p95_round_ms | p99_round_ms | shots/s | rounds/s |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+{% for m in metrics -%}
+| {{ m.decoder|e }} | {{ m.code_distance|e }} | {{ m.rounds|e }} | {{ m.basis|e }} | {{ "%.6e"|format(m.logical_error_rate) }} | {{ "%.6e"|format(m.ler_ci_low) }} | {{ "%.6e"|format(m.ler_ci_high) }} | {{ "%.6e"|format(m.residual_syndrome_density) }} | {{ "%.3f"|format(m.latency_p50_per_shot_ms) }} | {{ "%.3f"|format(m.latency_p95_per_shot_ms) }} | {{ "%.3f"|format(m.latency_p99_per_shot_ms) }} | {{ "%.3f"|format(m.latency_p50_per_round_ms) }} | {{ "%.3f"|format(m.latency_p95_per_round_ms) }} | {{ "%.3f"|format(m.latency_p99_per_round_ms) }} | {{ "%.3f"|format(m.throughput_shots_per_s) }} | {{ "%.3f"|format(m.throughput_rounds_per_s) }} |
+{% endfor %}
+
+## Artefacts Table
+| path | sha256 | bytes |
+|---|---|---|
+{% for a in artefacts|sort(attribute='path') -%}
+| {{ a.path|e }} | {{ a.sha256|e }} | {{ a.bytes|e }} |
+{% endfor %}
+
+---
+generator=decoderops-reports
+template=engineering_benchmark.md.j2 v1

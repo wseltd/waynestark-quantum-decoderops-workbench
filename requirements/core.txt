@@ -1,0 +1,84 @@
+# Quantum DecoderOps Workbench - Tier 1 core Python dependencies.
+#
+# This file is the authoritative list of packages required to run the
+# Workbench service, CLI, baseline decoder pipeline, export path,
+# persistence (DuckDB + PostgreSQL), reporting pipeline, and tests
+# WITHOUT any GPU or proprietary-NVIDIA runtime components.
+#
+# GPU/accelerated runtime packages live in requirements/gpu-cu13.txt.
+# Ising-Decoding vendor inference requirements are installed by
+# scripts/fetch_ising_assets.sh from the vendored repo.
+#
+# Pinning policy: lower-bound minor, upper-bound major. Exact pins are
+# produced downstream via pip freeze into `requirements/core.lock.txt`
+# during bootstrap, so reproducible rebuilds use the lock file.
+
+# --- Core QEC toolkit (Apache-2.0, permissive) ----------------------------
+stim>=1.14,<2.0
+pymatching>=2.2,<3.0
+sinter>=1.14,<2.0
+
+# --- Numerical / dataframes ----------------------------------------------
+numpy>=1.26,<3.0
+scipy>=1.12,<2.0
+pandas>=2.1,<3.0
+pyarrow>=15.0,<22.0
+
+# --- PyTorch (CPU by default; GPU bootstrap reinstalls against cu13) -----
+torch>=2.3,<3.0
+
+# --- Ising-Decoding inference companion packages --------------------------
+# These overlap with vendor/Ising-Decoding/code/requirements_public_inference.txt
+# but we install them here so the Workbench's own modules can depend on
+# them directly (e.g. syndrome tensor shaping) without hard-binding to the
+# vendor repo's pinning.
+hydra-core>=1.3,<2.0
+omegaconf>=2.3,<3.0
+safetensors>=0.4,<2.0
+matplotlib>=3.8,<4.0
+ldpc>=0.1.60,<3.0
+beliefmatching>=0.1.0,<1.0
+
+# --- ONNX toolchain (CPU) -------------------------------------------------
+onnx>=1.15,<2.0
+onnxruntime>=1.17,<2.0
+
+# --- API surface ---------------------------------------------------------
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.27,<1.0
+pydantic>=2.6,<3.0
+pydantic-settings>=2.2,<3.0
+httpx>=0.26,<1.0
+python-multipart>=0.0.9,<1.0
+
+# --- CLI -----------------------------------------------------------------
+typer>=0.12,<1.0
+rich>=13.7,<15.0
+
+# --- Storage (DuckDB primary, PostgreSQL first-class supported backend) ---
+duckdb>=1.0,<2.0
+sqlalchemy>=2.0,<3.0
+psycopg[binary]>=3.1,<4.0
+alembic>=1.13,<2.0
+
+# --- Report pipeline -----------------------------------------------------
+# reportlab is the deterministic PDF engine (pure-Python, no system libs,
+# manifest-driven timestamps, pinned fonts). markdown + jinja2 render the
+# Markdown and HTML variants.
+jinja2>=3.1,<4.0
+reportlab>=4.1,<5.0
+markdown>=3.5,<4.0
+pygments>=2.17,<3.0
+pyyaml>=6.0,<7.0
+
+# --- Observability / structured logging ---------------------------------
+structlog>=24.1,<26.0
+
+# --- Dev / test / QA ------------------------------------------------------
+pytest>=8.0,<9.0
+pytest-asyncio>=0.23,<1.0
+pytest-cov>=5.0,<7.0
+hypothesis>=6.100,<7.0
+ruff>=0.3,<1.0
+mypy>=1.9,<2.0
+types-PyYAML>=6.0,<7.0

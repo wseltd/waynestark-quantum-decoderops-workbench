@@ -1,0 +1,1 @@
+{"approximate_disjoint_errors":true,"decompose_errors":true,"dem_sha256":"417f442a96620fb9c4ff2cd8f042c5c79c7100da6147e755bb6ad0da3b1f05b9","flatten_loops":true,"source_circuit":"fixtures/seeded_circuits/surface_d3_r3.stim","source_circuit_sha256":"e31b57f43f1026cc305c7c7a7b6c8f5932198c268a039bb680a3b36870f2f32b","stim_version":"1.15.0"}

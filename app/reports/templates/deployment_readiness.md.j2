@@ -1,0 +1,19 @@
+# deployment_readiness Report — {{ run_id|e }}
+
+## Run Identity
+- run_id: {{ run_id|e }}
+- git_sha: {{ git_sha|default('')|e }}
+
+## Summary
+{% if summary is defined %}{{ summary|e }}{% else %}(no summary){% endif %}
+
+{% if rows is defined %}
+## Rows
+{% for r in rows -%}
+- {{ r|e }}
+{% endfor %}
+{% endif %}
+
+---
+generator=decoderops-reports
+template=deployment_readiness.md.j2 v1

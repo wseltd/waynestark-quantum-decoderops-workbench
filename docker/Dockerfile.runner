@@ -1,0 +1,25 @@
+# Tier 1 CPU-only reproducible benchmark runner (T193).
+# Base image pinned: python:3.12-slim-bookworm
+
+FROM python:3.12-slim-bookworm AS builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential git cmake && rm -rf /var/lib/apt/lists/*
+WORKDIR /build
+COPY requirements/core.txt requirements/core.lock.txt /build/
+RUN python -m venv /opt/venv && \
+    /opt/venv/bin/pip install --upgrade pip && \
+    /opt/venv/bin/pip install --require-hashes -r requirements/core.lock.txt
+
+FROM python:3.12-slim-bookworm AS runtime
+RUN useradd --uid 1000 --create-home --shell /bin/bash decoderops
+COPY --from=builder /opt/venv /opt/venv
+COPY app /workspace/app
+COPY pyproject.toml /workspace/pyproject.toml
+WORKDIR /workspace
+USER decoderops
+ENV PATH=/opt/venv/bin:$PATH \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DECODEROPS_DB_URL=duckdb:///workspace/runs.duckdb
+ENTRYPOINT ["decoderops"]
+CMD ["--help"]
