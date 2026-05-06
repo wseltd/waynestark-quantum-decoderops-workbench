@@ -34,15 +34,36 @@ Loading the shipped Apache-2.0 NVIDIA Ising checkpoints through the
 vendor's own `WORKFLOW=inference` path on the canonical public config
 (d=7, rounds=7, 25-parameter circuit-level noise, 262 144 shots/basis):
 
+![Logical error rate: PyMatching baseline vs Ising Fast vs Ising Accurate](docs/images/ler_comparison.png)
+
 | decoder | LER (Avg X/Z) | µs/round | params | wall |
 |---|---|---|---|---|
-| PyMatching baseline (no pre-decoder) | 0.002777 | 0.766 | — | 23 s |
+| PyMatching baseline (no pre-decoder) | 0.002777 | 0.625 | — | 23 s |
 | **Ising Fast (RF=9) + PyMatching** | **0.002256** (−19 %) | 0.428 | 912 772 | 23 s |
 | **Ising Accurate (RF=13) + PyMatching** | **0.001348** (−51 %) | 0.403 | 1 797 764 | 26 s |
 
-Plus a 63-cell PyMatching-only sweep (3 distances × 7 p-values × 3
-variants) and a 24-cell sinter sweep — full numbers in the rendered
-decision reports.
+Per-round latency (PyMatching baseline measured at p=0.003, 10 000 shots):
+
+![Per-round latency comparison and percentile tail](docs/images/latency_histogram.png)
+
+Threshold-style PyMatching sweep (3 distances × 7 physical error rates,
+60 k–200 k shots/cell; the d=5 and d=7 curves dropping below d=3 at
+low p is the sub-threshold regime — bigger codes win):
+
+![PyMatching threshold-style sweep](docs/images/ler_threshold_curves.png)
+
+GPU footprint during the Ising Fast inference run (single RTX PRO 6000;
+the two activity bursts are X-basis and Z-basis inference):
+
+![GPU timeseries during Ising Fast inference](docs/images/gpu_timeseries.png)
+
+Comparative grid (3 decoders × 2 distances × 3 physical error rates,
+20 k shots/cell):
+
+![Comparative grid: 3 decoders × 2 distances × 3 p-values](docs/images/comparative_grid.png)
+
+Plus a 24-cell sinter sweep and a 63-cell PyMatching-only sweep — full
+numbers in the rendered decision reports.
 
 ---
 
