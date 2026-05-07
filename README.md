@@ -1,4 +1,4 @@
-# Quantum DecoderOps Workbench
+# Waynestark Quantum DecoderOps Workbench
 
 A local-first, on-prem-first, vendor-neutral Python workbench for
 benchmarking quantum error correction (QEC) decoder pipelines. Built
